@@ -1,4 +1,4 @@
-import { sign, token } from './authen.interface';
+import { sign, token } from './auth.interface';
 import { DBAPI } from '../../db';
 import jwt, { Secret } from 'jsonwebtoken';
 import * as dotenv from 'dotenv'
@@ -14,18 +14,18 @@ dotenv.config();
 export class AuthenRepo extends DBAPI {
     async check_user(
         data: sign,
-    ): Promise<{ isSuccess: boolean, password: string }> {
+    ): Promise<{ isSuccess: boolean, password: string, role: any }> {
         const connection = await this.createConnection()
         try {
-            const query = `select userName, password from user`;
+            const query = `select userName, password, role from user`;
             const [row]: any = await connection.execute(query)
             const result: any = row;
             for (let i = 0; i < result.length; i++) {
                 if (data.userName === result[i].userName) {
-                    return { isSuccess: true, password: row[i].password }
+                    return { isSuccess: true, password: row[i].password, role: row[i].role }
                 }
             }
-            return { isSuccess: false, password: '' }
+            return { isSuccess: false, password: '', role: '' }
         }
         catch (error) {
             throw (error)
@@ -39,7 +39,7 @@ export class AuthenRepo extends DBAPI {
             const check = await this.check_user(data);
             if (check.isSuccess == false) {
                 const hashPassword = bcrypt.hashSync(data.password, saltRounds);
-                const query = `insert into user (userName, password) values ('${data.userName}', '${hashPassword}')`;
+                const query = `insert into user (userName, password, role) values ('${data.userName}', '${hashPassword}', '1')`;
                 const [row] = await connection.execute(query);
                 return { message: 'Tao user thanh cong' }
             }
@@ -61,7 +61,8 @@ export class AuthenRepo extends DBAPI {
                     return { message: 'Mat khau khong dung' }
                 }
                 const payload = {
-                    "userName": data.userName
+                    "userName": data.userName,
+                    "role": check.role
                 }
                 const SECRETKEY = process.env.SECRETKEY || "";
                 const REFRESHKEY = process.env.REFRESHKEY || "";

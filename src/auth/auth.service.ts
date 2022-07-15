@@ -1,5 +1,5 @@
-import { sign } from './authen.interface'
-import { AuthenRepo } from './authen.repo'
+import { sign } from './auth.interface'
+import { AuthenRepo } from './auth.repo'
 import { Request, Response } from 'express'
 
 export class AuthenService {

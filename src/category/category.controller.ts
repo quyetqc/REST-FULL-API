@@ -1,19 +1,18 @@
 import { CategoryService } from "./category.service";
 import express from 'express'
-import { Middleware } from "../authen/authen.middleware";
+import { Middleware } from "../auth/auth.middleware";
 
 export class CategoryController {
-    constructor(private readonly categoryService: CategoryService) { }
+    constructor(private readonly categoryService: CategoryService, private readonly middleware: Middleware) { }
     createRouter() {
         const categoryRouter = express.Router()
-        const middleware = Middleware.authenMiddleware;
-        categoryRouter.post('/create', middleware, (req, res) => {
+        categoryRouter.post('/create', this.middleware.authenMiddleware, this.middleware.authorizedAllRole, (req, res) => {
             this.categoryService.createCategory(req.body, res);
         });
-        categoryRouter.put('/update/:id', middleware, (req, res) => {
+        categoryRouter.put('/update/:id', this.middleware.authenMiddleware, this.middleware.authorizedManagerRole, (req, res) => {
             this.categoryService.updateCategory(+req.params.id, req.body, res);
         });
-        categoryRouter.delete('/delete/:id', middleware, (req, res) => {
+        categoryRouter.delete('/delete/:id', this.middleware.authenMiddleware, this.middleware.authorizedAdminRole, (req, res) => {
             this.categoryService.deleteCategory(+req.params.id, res);
         });
         categoryRouter.get('/:id', (req, res) => {

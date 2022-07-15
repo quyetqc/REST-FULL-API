@@ -14,9 +14,11 @@ import { CategoryController } from './src/category/category.controller'
 import { CategoryService } from './src/category/category.service'
 import { CategoryRepo } from './src/category/category.repo'
 
-import { AuthenController } from './src/authen/authen.controller'
-import { AuthenService } from './src/authen/authen.service'
-import { AuthenRepo } from './src/authen/authen.repo'
+import { AuthenController } from './src/auth/auth.controller'
+import { AuthenService } from './src/auth/auth.service'
+import { AuthenRepo } from './src/auth/auth.repo'
+
+import { Middleware } from './src/auth/auth.middleware'
 
 dotenv.config();
 const app = express();
@@ -37,10 +39,12 @@ const bookService = new BookService(bookRepo);
 const authenRepo = new AuthenRepo();
 const authenService = new AuthenService(authenRepo);
 
-app.use('/author', new AuthorController(authorService).createRouter());
-app.use('/book', new BookController(bookService).createRouter());
-app.use('/category', new CategoryController(categoryService).createRouter());
-app.use('/user', new AuthenController(authenService).createRouter());
+const middleware = new Middleware()
+
+app.use('/author', new AuthorController(authorService, middleware).createRouter());
+app.use('/book', new BookController(bookService, middleware).createRouter());
+app.use('/category', new CategoryController(categoryService, middleware).createRouter());
+app.use('/user', new AuthenController(authenService, middleware).createRouter());
 
 app.listen(port, () => {
     console.log(`Nodejs sever started running on: ${port}`)

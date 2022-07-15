@@ -46,6 +46,8 @@ export class CategoryService {
         res: Response,
     ) {
         try {
+            /// user infor. 
+            // neu user co quyen thi chay tiep k thi res.send(401)
             const result = await this.categoryRepo.findOne('category', id)
             res.send(result)
         }
